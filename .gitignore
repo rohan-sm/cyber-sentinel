@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.manifest
+*.spec
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Data files
+# data/raw/
+# outputs/
+
+# Python cache and logs
+*.log
+*.sqlite3
+*.db
+
+# IDE/project settings
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
