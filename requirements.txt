@@ -17,3 +17,5 @@ fastapi
 uvicorn
 python-dotenv
 pyyaml
+fastapi 
+uvicorn 

@@ -18,8 +18,10 @@ class AttackClassifier:
         ]
 
         self.model = RandomForestClassifier(
-            n_estimators=150,
-            max_depth=10,
+            n_estimators=50,
+            max_depth=5,
+            min_samples_leaf=3,
+            min_samples_split=5,
             random_state=42
         )
 
@@ -58,6 +60,15 @@ class AttackClassifier:
         preds = self.model.predict(X_scaled)
 
         return self.encoder.inverse_transform(preds)
+    
+    # ─ Predict probabilities (for unknown classes) ───────────────────────────────
+    
+    def predict_proba(self, df):
+        df = self.preprocess(df)
+
+        X_scaled = self.scaler.transform(df[self.features])
+
+        return self.model.predict_proba(X_scaled)
 
     # ── Save / Load ────────────────────────────────
     def save(self, path):

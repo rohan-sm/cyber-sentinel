@@ -1,5 +1,5 @@
 import pandas as pd
-from classification_model import AttackClassifier
+from models.classification_model import AttackClassifier
 
 df = pd.read_csv("../data/processed/engineered_dataset.csv")
 

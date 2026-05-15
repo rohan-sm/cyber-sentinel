@@ -2,14 +2,16 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
-from classification_model import AttackClassifier
+from models.classification_model import AttackClassifier
 
 # Load
 df = pd.read_csv("../data/processed/engineered_dataset.csv")
 
 # Split features/target
-X = df.copy()
-y = df['attack_type']
+df_attack = df[df['attack_type'] != 'none']
+
+X = df_attack.copy()
+y = df_attack['attack_type']
 
 # Train-test split
 X_train, X_test, y_train, y_test = train_test_split(

@@ -1,5 +1,5 @@
 import pandas as pd
-from anomaly_model import AnomalyDetector
+from models.anomaly_model import AnomalyDetector
 
 df = pd.read_csv("../data/processed/engineered_dataset.csv")
 

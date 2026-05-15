@@ -9,7 +9,7 @@ class AnomalyDetector:
         self.scaler = StandardScaler()
         self.model = IsolationForest(
             n_estimators=200,
-            contamination=0.28,
+            contamination=0.2,
             random_state=42
         )
         self.features = [
