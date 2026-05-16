@@ -1,27 +1,30 @@
 import pandas as pd
 
-from models.hybrid_model import HybridDetector
+from models.classification_model import AttackClassifier
 from sklearn.metrics import classification_report
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Load data
-df = pd.read_csv("../data/processed/engineered_dataset.csv")
+df = pd.read_csv(BASE_DIR / "data" / "engineered_dataset.csv")
 
-# Load hybrid model
-hybrid = HybridDetector.load("../outputs/models/hybrid_model.pkl")
+# Load classifier model
+classifier = AttackClassifier()
+classifier.load(str(BASE_DIR / "outputs" / "models" / "classifier.pkl"))
 
 # Predict
-results = hybrid.predict(df)
+df['final_prediction'] = classifier.predict(df)
 
-print(results[
-    ['attack_type', 'anomaly_pred', 'attack_pred', 'final_prediction']
+print(df[
+    ['attack_type', 'final_prediction']
 ].head())
 
-
-print("\n========== FINAL HYBRID REPORT ==========\n")
+print("\n========== FINAL CLASSIFIER REPORT ==========\n")
 print(
     classification_report(
-        results['attack_type'],
-        results['final_prediction'],
+        df['attack_type'],
+        df['final_prediction'],
         zero_division=0
     )
 )
