@@ -187,7 +187,7 @@ function Dashboard() {
                 Cyber<span className="text-neon-cyan">Sentinel</span>
               </h1>
               <p className="mt-2 text-sm md:text-base text-muted-foreground">
-                Hybrid Edge-AI Intrusion Detection System
+                Classifier Edge-AI Intrusion Detection System
               </p>
             </div>
             <div className="flex items-center gap-3 rounded-full border border-neon-green/30 bg-neon-green/5 px-4 py-2 self-start md:self-auto">
@@ -207,7 +207,7 @@ function Dashboard() {
           <StatusCard icon={Activity} label="API Status" value="Online" />
           <StatusCard icon={Radar} label="Detection Engine" value="Active" />
           <StatusCard icon={ShieldCheck} label="Threat Monitor" value="Running" />
-          <StatusCard icon={Cpu} label="Hybrid Model" value="Loaded" />
+          <StatusCard icon={Cpu} label="Classifier Model" value="Loaded" />
         </section>
 
         {/* MAIN GRID */}
@@ -403,7 +403,7 @@ function Dashboard() {
         <footer className="mt-10 border-t border-border/40 pt-6 text-center">
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <ShieldAlert className="h-3.5 w-3.5 text-neon-cyan" />
-            <span>CyberSentinel — Lightweight Hybrid IDS for IoT and Edge Devices</span>
+            <span>CyberSentinel — Lightweight Classifier IDS for IoT and Edge Devices</span>
           </div>
         </footer>
       </div>
