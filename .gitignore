@@ -20,13 +20,22 @@ env/
 .ipynb_checkpoints/
 
 # Data files
-# data/raw/
-# outputs/
+# data/raw/ and outputs/ are intentionally tracked: the notebooks cannot be
+# executed in this venv, so data/processed/ + outputs/models/ are the only
+# path that lets a reviewer run src/inference/predict_hybrid.py after cloning.
 
 # Python cache and logs
 *.log
 *.sqlite3
 *.db
+*.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+
+# Secrets
+.env
+.env.*
+!.env.example
 
 # IDE/project settings
 .vscode/
@@ -43,3 +52,12 @@ frontend/.cache/
 
 frontend/.env
 frontend/*.env
+
+# TanStack Router / Start generated
+frontend/src/routeTree.gen.ts
+frontend/.tanstack/
+frontend/.output/
+
+# Cloudflare Workers
+frontend/.wrangler/
+frontend/.dev.vars
