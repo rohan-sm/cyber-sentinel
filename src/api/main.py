@@ -1,28 +1,289 @@
+
+# # # # ==========================================
+
+
+
+
+
+# from fastapi import FastAPI
+# from fastapi.middleware.cors import CORSMiddleware
+
+# import pandas as pd
+# from pathlib import Path
+# import sys
+
+# # ==========================================
+# # BASE PATHS
+# # ==========================================
+
+# BASE_DIR = Path(__file__).resolve().parent.parent.parent
+
+# DATA_PATH = (
+#     BASE_DIR
+#     / "data"
+#     / "processed"
+#     / "engineered_dataset.csv"
+# )
+
+# MODEL_PATH = (
+#     BASE_DIR
+#     / "outputs"
+#     / "models"
+#     / "classifier.pkl"
+# )
+
+# # ==========================================
+# # IMPORT MODEL
+# # ==========================================
+
+# sys.path.append(str(BASE_DIR / "src"))
+
+# from models.classification_model import (
+#     AttackClassifier
+# )
+
+# # ==========================================
+# # LOAD MODEL
+# # ==========================================
+
+# classifier = AttackClassifier()
+
+# classifier.load(str(MODEL_PATH))
+
+# # ==========================================
+# # FASTAPI APP
+# # ==========================================
+
+# app = FastAPI(
+#     title="CyberSentinel API",
+#     version="2.0"
+# )
+
+# # ==========================================
+# # ENABLE CORS
+# # ==========================================
+
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
+
+# # ==========================================
+# # FEATURE COLUMNS
+# # ==========================================
+
+# FEATURE_COLUMNS = [
+
+#     "failure_rate",
+
+#     "port_scan_intensity",
+
+#     "process_cpu_ratio",
+
+#     "packet_spike_ratio",
+
+#     "connection_spike_ratio",
+
+#     "cpu_spike_ratio"
+# ]
+
+# # ==========================================
+# # ROOT
+# # ==========================================
+
+# @app.get("/")
+# def root():
+
+#     return {
+
+#         "message":
+#             "CyberSentinel Live IDS Running"
+#     }
+
+# # ==========================================
+# # HEALTH CHECK
+# # ==========================================
+
+# @app.get("/health")
+# def health():
+
+#     return {
+
+#         "status": "healthy"
+#     }
+
+# # ==========================================
+# # LIVE DETECTION
+# # ==========================================
+
+# @app.get("/live_detection")
+# def live_detection():
+
+#     # ======================================
+#     # LOAD DATASET
+#     # ======================================
+
+#     df = pd.read_csv(DATA_PATH)
+
+#     # ======================================
+#     # RANDOM SAMPLE
+#     # ======================================
+
+#     sample = df.sample(1)
+
+#     actual_attack = (
+#         sample.iloc[0]["attack_type"]
+#     )
+
+#     # ======================================
+#     # FEATURE EXTRACTION
+#     # ======================================
+
+#     input_df = sample[FEATURE_COLUMNS]
+
+#     # ======================================
+#     # PREDICT ATTACK
+#     # ======================================
+
+#     preds = classifier.predict(input_df)
+
+#     attack_pred = preds[0]
+
+#     # ======================================
+#     # CONFIDENCE
+#     # ======================================
+
+#     probas = classifier.predict_proba(
+#         input_df
+#     )
+
+#     confidence = float(
+#         probas.max(axis=1)[0]
+#     )
+
+#     # ======================================
+#     # UNKNOWN ATTACK HANDLING
+#     # ======================================
+
+#     if confidence < 0.65:
+
+#         final_prediction = (
+#             "suspicious_unknown"
+#         )
+
+#     else:
+
+#         final_prediction = attack_pred
+
+#     # ======================================
+#     # SEVERITY LOGIC
+#     # ======================================
+
+#     if final_prediction == "none":
+
+#         anomaly_pred = 0
+
+#         severity = "low"
+
+#         anomaly_score = 0.0
+
+#     else:
+
+#         anomaly_pred = 1
+
+#         anomaly_score = round(
+#             -confidence,
+#             4
+#         )
+
+#         if confidence > 0.85:
+
+#             severity = "high"
+
+#         elif confidence > 0.70:
+
+#             severity = "medium"
+
+#         else:
+
+#             severity = "low"
+
+#     # ======================================
+#     # FINAL RESPONSE
+#     # ======================================
+
+#     return {
+
+#         "actual_attack":
+#             actual_attack,
+
+#         "anomaly_pred":
+#             anomaly_pred,
+
+#         "attack_pred":
+#             attack_pred,
+
+#         "final_prediction":
+#             final_prediction,
+
+#         "confidence":
+#             round(confidence, 4),
+
+#         "severity":
+#             severity,
+
+#         "anomaly_score":
+#             anomaly_score
+#     }
+
+
 from fastapi import FastAPI
-# pyrefly: ignore [missing-import]
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
 import pandas as pd
 from pathlib import Path
-# pyrefly: ignore [missing-import]
-from fastapi.middleware.cors import CORSMiddleware
+import sys
+
+# ==========================================
+# BASE PATHS
+# ==========================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-DATA_PATH = BASE_DIR / "data" / "engineered_dataset.csv"
+DATA_PATH = (
+    BASE_DIR
+    / "data"
+    / "processed"
+    / "engineered_dataset.csv"
+)
 
-import sys
+HYBRID_MODEL_PATH = (
+    BASE_DIR
+    / "outputs"
+    / "models"
+    / "hybrid_model.pkl"
+)
+
+# ==========================================
+# IMPORT MODELS
+# ==========================================
+
 sys.path.append(str(BASE_DIR / "src"))
 
-# from models.hybrid_model import HybridDetector
-from models.classification_model import AttackClassifier
+from models.hybrid_model import (
+    HybridDetector
+)
 
 # ==========================================
-# LOAD HYBRID MODEL
+# LOAD MODELS
 # ==========================================
 
-classifier = AttackClassifier()
-classifier.load(
-    str(BASE_DIR / "outputs" / "models" / "classifier.pkl")
+hybrid = HybridDetector.load(
+    str(HYBRID_MODEL_PATH)
 )
 
 # ==========================================
@@ -31,16 +292,42 @@ classifier.load(
 
 app = FastAPI(
     title="CyberSentinel API",
-    version="1.0"
+    version="2.0"
 )
+
+# ==========================================
+# ENABLE CORS
+# ==========================================
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ==========================================
+# FEATURE COLUMNS
+# ==========================================
+
+FEATURE_COLUMNS = [
+
+    "failure_rate",
+
+    "port_scan_intensity",
+
+    "process_cpu_ratio",
+
+    "packet_spike_ratio",
+
+    "connection_spike_ratio",
+
+    "cpu_spike_ratio"
+]
 
 # ==========================================
 # REQUEST SCHEMA
@@ -49,10 +336,15 @@ app.add_middleware(
 class PredictionRequest(BaseModel):
 
     failure_rate: float
+
     port_scan_intensity: float
+
     process_cpu_ratio: float
+
     packet_spike_ratio: float
+
     connection_spike_ratio: float
+
     cpu_spike_ratio: float
 
 # ==========================================
@@ -63,129 +355,199 @@ class PredictionRequest(BaseModel):
 def root():
 
     return {
-        "message": "CyberSentinel Classifier IDS Running"
+
+        "message":
+            "CyberSentinel Hybrid IDS Running"
     }
 
 # ==========================================
-# HEALTH
+# HEALTH CHECK
 # ==========================================
 
 @app.get("/health")
 def health():
 
     return {
+
         "status": "healthy"
     }
 
 # ==========================================
-# PREDICT
+# MANUAL PREDICTION
 # ==========================================
 
 @app.post("/predict")
 def predict(request: PredictionRequest):
 
-    df = pd.DataFrame([request.dict()])
+    # ======================================
+    # CREATE DATAFRAME
+    # ======================================
 
-    # Predict attack type
-    preds = classifier.predict(df)
-    attack_pred = preds[0]
+    df = pd.DataFrame(
+        [request.model_dump()]
+    )
 
-    # Predict confidence
-    probas = classifier.predict_proba(df)
-    confidence = float(probas.max(axis=1)[0])
+    # ======================================
+    # HYBRID CASCADE PREDICTION
+    #
+    # STAGE 1: ISOLATION FOREST GATES
+    # STAGE 2: RANDOM FOREST CLASSIFIES
+    #         ONLY THE FLAGGED ROWS
+    # ======================================
 
-    # Unknown handling
-    if confidence < 0.65:
-        final_prediction = 'suspicious_unknown'
-    else:
-        final_prediction = attack_pred
+    row = hybrid.predict(df).iloc[0]
 
-    # Determine mock severity based on confidence
-    if final_prediction == 'none':
-        anomaly_pred = 0
-        severity = 'low'
-    else:
-        anomaly_pred = 1
-        if confidence > 0.85:
-            severity = 'high'
-        elif confidence > 0.70:
-            severity = 'medium'
-        else:
-            severity = 'low'
+    # ======================================
+    # RESPONSE
+    # ======================================
 
     return {
-        "anomaly_pred": anomaly_pred,
-        "attack_pred": attack_pred,
-        "final_prediction": final_prediction,
-        "confidence": round(confidence, 4),
-        "severity": severity
+
+        "anomaly_pred":
+            int(row["anomaly_pred"]),
+
+        "anomaly_score":
+            round(
+                float(row["anomaly_score"]), 4
+            ),
+
+        "attack_pred":
+            row["attack_pred"],
+
+        "final_prediction":
+            row["final_prediction"],
+
+        "confidence":
+            round(
+                float(row["confidence"]), 4
+            ),
+
+        "severity":
+            row["severity"]
     }
 
-
 # ==========================================
-# SAMPLE ATTACK
+# LIVE DETECTION
 # ==========================================
 
-@app.get("/sample_attack/{attack_type}")
-def sample_attack(attack_type: str):
+@app.get("/live_detection")
+def live_detection():
 
-    import pandas as pd
-
+    # ======================================
     # LOAD DATASET
+    # ======================================
+
     df = pd.read_csv(DATA_PATH)
 
-    # FILTER ATTACK
-    sample_df = df[df['attack_type'] == attack_type]
-
-    if len(sample_df) == 0:
-
-        return {
-            "error": f"No samples found for {attack_type}"
-        }
-
+    # ======================================
     # RANDOM SAMPLE
-    sample = sample_df.sample(1, random_state=None)
+    # ======================================
 
-    # FEATURES
-    features = [
-        'failure_rate',
-        'port_scan_intensity',
-        'process_cpu_ratio',
-        'packet_spike_ratio',
-        'connection_spike_ratio',
-        'cpu_spike_ratio'
-    ]
+    sample = df.sample(1)
 
-    input_df = sample[features]
+    actual_attack = (
+        sample.iloc[0]["attack_type"]
+    )
 
-    # PREDICT
-    preds = classifier.predict(input_df)
-    attack_pred = preds[0]
+    # ======================================
+    # FEATURE EXTRACTION
+    # ======================================
 
-    probas = classifier.predict_proba(input_df)
-    confidence = float(probas.max(axis=1)[0])
+    input_df = sample[FEATURE_COLUMNS]
 
-    if confidence < 0.65:
-        final_prediction = 'suspicious_unknown'
-    else:
-        final_prediction = attack_pred
+    # ======================================
+    # HYBRID PREDICTION
+    # ======================================
 
-    if final_prediction == 'none':
-        severity = 'low'
-        anomaly_score = 0.0
-    else:
-        anomaly_score = -0.5 # Dummy negative value for frontend
-        if confidence > 0.85:
-            severity = 'high'
-        elif confidence > 0.70:
-            severity = 'medium'
-        else:
-            severity = 'low'
+    result = hybrid.predict(input_df)
+
+    row = result.iloc[0]
+
+    # ======================================
+    # RESPONSE
+    # ======================================
 
     return {
-        "actual_attack": attack_type,
-        "prediction": final_prediction,
-        "confidence": round(confidence, 4),
-        "severity": severity,
-        "anomaly_score": anomaly_score
-    }
+
+    # ==================================
+    # ACTUAL LABEL
+    # ==================================
+
+    "actual_attack":
+        actual_attack,
+
+    # ==================================
+    # INPUT FEATURES USED
+    # ==================================
+
+    "input_features": {
+
+        "failure_rate":
+            float(
+                sample.iloc[0][
+                    "failure_rate"
+                ]
+            ),
+
+        "port_scan_intensity":
+            float(
+                sample.iloc[0][
+                    "port_scan_intensity"
+                ]
+            ),
+
+        "process_cpu_ratio":
+            float(
+                sample.iloc[0][
+                    "process_cpu_ratio"
+                ]
+            ),
+
+        "packet_spike_ratio":
+            float(
+                sample.iloc[0][
+                    "packet_spike_ratio"
+                ]
+            ),
+
+        "connection_spike_ratio":
+            float(
+                sample.iloc[0][
+                    "connection_spike_ratio"
+                ]
+            ),
+
+        "cpu_spike_ratio":
+            float(
+                sample.iloc[0][
+                    "cpu_spike_ratio"
+                ]
+            )
+    },
+
+    # ==================================
+    # PREDICTIONS
+    # ==================================
+
+    "anomaly_pred":
+        int(row["anomaly_pred"]),
+
+    "anomaly_score":
+        float(row["anomaly_score"]),
+
+    "attack_pred":
+        row["attack_pred"],
+
+    "final_prediction":
+        row["final_prediction"],
+
+    # ==================================
+    # CONFIDENCE + SEVERITY
+    # ==================================
+
+    "confidence":
+        float(row["confidence"]),
+
+    "severity":
+        row["severity"]
+}
